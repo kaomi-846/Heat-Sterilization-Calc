@@ -270,9 +270,9 @@
           judge = actual >= req ? "OK" : "NG";
 
           if (judge === "NG") {
-            cls = "ng"; // ← 最優先
+            cls = "ng"; // 赤
           } else {
-            cls = cat === "③" ? "warning" : "ok";
+            cls = "ok"; // ←まずOKは全部緑にする
           }
         }
         if (cat === "③" && judge) cls = "warning";
@@ -280,16 +280,18 @@
         result.className = "result " + cls;
 
         let html = `
-  <div style="font-size:18px;">推奨加熱時間（目安）</div>
-  <div style="font-size:28px;font-weight:bold;">約 ${formatTime(req)}</div>
-  <div style="font-size:14px;color:#666;">※加熱温度での必要時間目安</div>
-  <hr>
-  `;
+        <div style="font-size:18px;">推奨加熱時間（目安）</div>
+        <div style="font-size:28px;font-weight:bold;">約 ${formatTime(
+          req
+        )}</div>
+        <div style="font-size:14px;color:#666;">※加熱温度での必要時間目安</div>
+        <hr>
+        `;
 
         if (req < 1) {
           html += `<div style="font-size:13px;color:#cc0000;">
-    ※高温条件の理論値です。中心温度を確認し、到達時間を見極め、十分な加熱を行ってください
-    </div><hr>`;
+          ※高温条件の理論値です。中心温度を確認し、到達時間を見極め、十分な加熱を行ってください
+          </div><hr>`;
         }
 
         if (!judge) {
@@ -299,26 +301,35 @@
 
           if (judge === "NG") {
             html += `<div style="margin-top:10px;font-size:14px;color:#cc0000;">
-      ※基準未達です。加熱条件の見直しが必要です
-      </div>`;
+            ※基準未達です。加熱条件の見直しが必要です
+            </div>`;
 
             if (cat === "③") {
               html += `<div style="margin-top:5px;font-size:14px;font-weight:bold;color:#cc0000;">
-        ボツリヌス菌の増殖リスクがある条件です。十分な加熱または条件の見直しを行ってください
-        </div>`;
+              ボツリヌス菌の増殖リスクがある条件です。十分な加熱または条件の見直しを行ってください
+              </div>`;
             }
           }
 
-          if (judge === "OK") {
+          // 現場目安判定
+          if (actual < guide.safe) {
             html += `
-  <hr>
-  <div style="margin-top:10px;font-size:18px;font-weight:bold;">
-  👉 現場目安（推奨）：約 ${formatTime(guide.safe)}（×${guide.factor}）
-  </div>
-  <div style="font-size:14px;color:#555;">
-  ${guide.message}
-  </div>
-  `;
+          <div style="margin-top:10px;font-size:18px;font-weight:bold;color:#856404;">
+          👉 現場目安：約 ${formatTime(guide.safe)}（×${guide.factor}）
+          </div>
+          <div style="font-size:14px;color:#856404;">
+          ※現場目安より短いため、余裕を持った加熱を推奨します
+          </div>
+          `;
+          } else {
+            html += `
+          <div style="margin-top:10px;font-size:18px;font-weight:bold;color:#28a745;">
+          👉 現場目安：約 ${formatTime(guide.safe)}（×${guide.factor}）
+          </div>
+          <div style="font-size:14px;color:#555;">
+          ${guide.message}
+          </div>
+          `;
           }
         }
 
@@ -363,11 +374,13 @@
         log.innerHTML = "";
         data.forEach((d, i) => {
           log.innerHTML += `
-    <tr>
-    <td><input type="checkbox" class="chk" data-index="${i}" onchange="toggleDeleteBtn()"></td>
-    <td>${d.date}</td><td>${d.product}</td><td>${d.note}</td>
-    <td>${d.pH}</td><td>${d.T}</td><td>${d.actual || ""}</td><td>${d.judge}</td>
-    </tr>`;
+          <tr>
+          <td><input type="checkbox" class="chk" data-index="${i}" onchange="toggleDeleteBtn()"></td>
+          <td>${d.date}</td><td>${d.product}</td><td>${d.note}</td>
+          <td>${d.pH}</td><td>${d.T}</td><td>${d.actual || ""}</td><td>${
+            d.judge
+          }</td>
+          </tr>`;
         });
         toggleDeleteBtn();
       }
