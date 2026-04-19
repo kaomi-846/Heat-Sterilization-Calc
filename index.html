@@ -267,7 +267,7 @@
           cls = "neutral";
 
         if (!isNaN(actual)) {
-          judge = actual >= guide.safe ? "OK" : "NG";
+          judge = actual >= req ? "OK" : "NG";
 
           if (judge === "NG") {
             cls = "ng"; // ← 最優先
@@ -416,3 +416,4 @@
     </script>
   </body>
 </html>
+
